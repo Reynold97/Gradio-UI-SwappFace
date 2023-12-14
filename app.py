@@ -4,6 +4,9 @@ from PIL import Image
 import io
 from gradio.themes.base import Base
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def process_images(face_image, model_image, watermark = False, vignette = False):
     # Convertir las imágenes PIL a bytes
@@ -13,7 +16,7 @@ def process_images(face_image, model_image, watermark = False, vignette = False)
     face_image.save(face_img_bytes, format='PNG')
 
     # Configurar los datos para la solicitud HTTP
-    url = os.getenv("URL")
+    url = os.getenv('URL')
     files = {
         'model': ('model.png', model_img_bytes.getvalue(), 'image/png'),
         'face': ('face.png', face_img_bytes.getvalue(), 'image/png'),
