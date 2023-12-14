@@ -3,6 +3,7 @@ import requests
 from PIL import Image
 import io
 from gradio.themes.base import Base
+import os
 
 def process_images(face_image, model_image, watermark = False, vignette = False):
     # Convertir las imágenes PIL a bytes
@@ -12,7 +13,7 @@ def process_images(face_image, model_image, watermark = False, vignette = False)
     face_image.save(face_img_bytes, format='PNG')
 
     # Configurar los datos para la solicitud HTTP
-    url = 'http://storyfaceswapp-prod-env.eba-nmjv3puz.eu-west-3.elasticbeanstalk.com/swap_face'
+    url = os.getenv("URL")
     files = {
         'model': ('model.png', model_img_bytes.getvalue(), 'image/png'),
         'face': ('face.png', face_img_bytes.getvalue(), 'image/png'),
