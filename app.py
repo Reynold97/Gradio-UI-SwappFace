@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def process_images(face_image, model_image, watermark = False, vignette = False):
+def process_images(face_image, model_image, watermark = False, vignette = False, quality = 100):
     # Convertir las imágenes PIL a bytes
     model_img_bytes = io.BytesIO()
     model_image.save(model_img_bytes, format='PNG')
@@ -17,22 +17,33 @@ def process_images(face_image, model_image, watermark = False, vignette = False)
 
     # Configurar los datos para la solicitud HTTP
     url = os.getenv('URL')
-    files = {
-        'model': ('model.png', model_img_bytes.getvalue(), 'image/png'),
-        'face': ('face.png', face_img_bytes.getvalue(), 'image/png'),
-    }
+ 
+    files = [
+    ('images', ('face.png', face_img_bytes.getvalue(), 'image/jpeg')),
+    ('images', ('model.png', model_img_bytes.getvalue(), 'image/png'))
+    ]      
+    
     data = {
-        'watermark': watermark,
-        'vignette': vignette
+        'watermark': 0,
+        'quality': quality
     }
 
     response = requests.post(url, files=files, data=data)
 
-    # Procesar la respuesta
     if response.status_code == 200:
-        return Image.open(io.BytesIO(response.content))
+        # Log the Content-Type to ensure it's an image
+        #print("Content-Type:", response.headers.get('Content-Type'))
+        #print(response.content)
+        
+        # Attempt to open the response content as an image
+        try:
+            return Image.open(io.BytesIO(response.content))
+        except Exception as e:
+            print(f"Error opening image: {e}")
+            return None  # Return None or handle the error as needed
     else:
-        raise ValueError("Error en la solicitud: Código de estado " + str(response.status_code))
+        raise ValueError(f"Error in the request: Status Code {response.status_code}")
+
 
 # Crear la interfaz de Gradio
 
